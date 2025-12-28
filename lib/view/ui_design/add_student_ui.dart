@@ -25,6 +25,7 @@ class AddStudentUi extends StatelessWidget {
       context,
       listen: false,
     );
+    final provider = Provider.of<AttendanceProvide>(context);
     final dateofbirth = Provider.of<AttendanceProvide>(context).dobdate;
     final imagess = Provider.of<AttendanceProvide>(context).imagess;
     final dropdownmenuselectvalue = Provider.of<AttendanceProvide>(
@@ -60,15 +61,23 @@ class AddStudentUi extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        // CircleAvatar(
+                        //   radius: 40,
+                        //   backgroundImage: provider.imagess != null
+                        //       ? (kIsWeb
+                        //             ? NetworkImage(provider.imagess!.path)
+                        //             : FileImage(File(provider.imagess!.path))
+                        //                   as ImageProvider)
+                        //       : const AssetImage('assets/images/user.png'),
+                        // ),
                         CircleAvatar(
-                          radius: 35,
-                          backgroundColor: white,
-                          backgroundImage: imagess != null
-                              ? kIsWeb
-                                    ? NetworkImage(imagess.path)
-                                    : FileImage(File(imagess.path))
-                              : AssetImage('assets/images/user.png'),
+                          radius: 40,
+                          backgroundImage: provider.imageBytes != null
+                              ? MemoryImage(provider.imageBytes!)
+                              : const AssetImage('assets/images/user.png')
+                                    as ImageProvider,
                         ),
+
                         SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -223,8 +232,8 @@ class AddStudentUi extends StatelessWidget {
                                 final DateTime? dobPicker =
                                     await showDatePicker(
                                       context: context,
-                                      firstDate: DateTime(2025),
-                                      lastDate: DateTime(3000),
+                                      firstDate: DateTime(1990),
+                                      lastDate: DateTime.now(),
                                       initialDate: DateTime.now(),
                                     );
                                 if (dobPicker != null) {
@@ -263,7 +272,6 @@ class AddStudentUi extends StatelessWidget {
                         phnumber: phonenumbercontroller.text,
                         place: placecontroller.text,
                         dob: dateofbirth,
-                        image: imagess.toString(),
                         standard: dropdownmenuselectvalue,
                       );
                       Navigator.pop(context);
@@ -275,6 +283,17 @@ class AddStudentUi extends StatelessWidget {
               CustomWidgetButtonContainer(
                 text: 'Cancel/Back',
                 ontap: () {
+                  final provider = Provider.of<AttendanceProvide>(
+                    context,
+                    listen: false,
+                  );
+
+                  provider.base64Image = null;
+                  provider.imageBytes = null;
+                  provider.imagess = null;
+                  provider.dobdate = 'Pick a date';
+                  provider.notifyListeners();
+
                   Navigator.pop(context);
                 },
               ),

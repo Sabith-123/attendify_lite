@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:attendify_lite/models/student_model/student_model.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AttendanceProvide extends ChangeNotifier {
   List<StudentModel> studentDetailsData = [];
+
   XFile? imagess;
+  Uint8List? imageBytes;
+  String? base64Image;
+
   String? datedata = DateFormat(
     'EEE,MMM,dd,yyyy',
   ).format(DateTime.now()).toString();
@@ -39,36 +44,48 @@ class AttendanceProvide extends ChangeNotifier {
     String? fname,
     String? idnumber,
     String? phnumber,
-    String? image,
     String? place,
     String? dob,
     String? standard,
   }) async {
     try {
-      if (fname!.isNotEmpty &&
-          idnumber!.isNotEmpty &&
-          place!.isNotEmpty &&
-          phnumber!.isNotEmpty &&
-          image != null &&
-          dob!.isNotEmpty &&
-          standard!.isNotEmpty) {
+      if (fname != null &&
+          fname.isNotEmpty &&
+          idnumber != null &&
+          idnumber.isNotEmpty &&
+          place != null &&
+          place.isNotEmpty &&
+          phnumber != null &&
+          phnumber.isNotEmpty &&
+          base64Image != null &&
+          dob != null &&
+          dob.isNotEmpty &&
+          dob != 'Pick a date' &&
+          standard != null &&
+          standard.isNotEmpty) {
         studentDetailsData.add(
           StudentModel(
             attend: false,
-            studentimage: image,
+            studentimage: base64Image!,
             fullname: fname.trim(),
             idnumber: idnumber.trim(),
-            phnumber: phnumber!.trim(),
+            phnumber: phnumber.trim(),
             place: place.trim(),
             dob: dob,
             standard: standard,
           ),
         );
+
+        await putData();
+        base64Image = null;
+        imageBytes = null;
+        imagess = null;
+        notifyListeners();
+      } else {
+        throw "Validation failed: some fields are empty or image missing";
       }
-      putData();
-      notifyListeners();
     } catch (e) {
-      print(e);
+      print("Add student error: $e");
     }
   }
 
@@ -78,6 +95,9 @@ class AttendanceProvide extends ChangeNotifier {
 
       if (picker != null) {
         imagess = picker;
+        imageBytes = await picker.readAsBytes();
+        base64Image = base64Encode(imageBytes!);
+
         notifyListeners();
         putData();
       }

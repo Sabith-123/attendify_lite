@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:attendify_lite/utilities/consents/consents.dart';
 import 'package:attendify_lite/utilities/custom_widget/custom_widget.dart';
 import 'package:attendify_lite/view/ui_design/add_student_ui.dart';
 import 'package:attendify_lite/view_models/attendance_provide.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +17,7 @@ class StudentsUi extends StatelessWidget {
     final studentData = Provider.of<AttendanceProvide>(
       context,
     ).studentDetailsData;
+
     return Scaffold(
       floatingActionButton: InkWell(
         onTap: () {
@@ -76,11 +81,26 @@ class StudentsUi extends StatelessWidget {
                               Flex(
                                 direction: Axis.horizontal,
                                 children: [
+                                  // CircleAvatar(
+                                  //   radius: 30,
+                                  //   backgroundImage: kIsWeb
+                                  //       ? NetworkImage(
+                                  //           studentData[index].studentimage,
+                                  //         )
+                                  //       : FileImage(
+                                  //               File(
+                                  //                 studentData[index]
+                                  //                     .studentimage,
+                                  //               ),
+                                  //             )
+                                  //             as ImageProvider,
+                                  // ),
                                   CircleAvatar(
                                     radius: 30,
-                                    backgroundImage: AssetImage(
-                                      studentData[index].studentimage
-                                          .toString(),
+                                    backgroundImage: MemoryImage(
+                                      base64Decode(
+                                        studentData[index].studentimage,
+                                      ),
                                     ),
                                   ),
                                   SizedBox(width: 20),
